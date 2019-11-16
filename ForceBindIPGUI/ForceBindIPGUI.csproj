@@ -7,6 +7,11 @@
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
+    <StartupObject>ForceBindIPGUI.App</StartupObject>
+    <Version>0.0.1</Version>
+    <Authors>Neod</Authors>
+    <Company>Neod</Company>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
