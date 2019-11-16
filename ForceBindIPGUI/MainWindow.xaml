@@ -5,21 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ForceBindIPGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="125" Width="550">
+        Title="ForceBindIP GUI" Height="410" Width="672" WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="80"/>
         </Grid.ColumnDefinitions>
-        
-        <GroupBox Header="Network Interface" Margin="10,10,10,10" Height="45"  Grid.Column="0" >
+
+        <GroupBox Header="Software" Margin="10,0,0,0" Height="45" Grid.Column="0" Grid.Row="0" >
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox x:Name="cbIPs" Grid.Column="0" SelectedValue="{Binding ip}"/>
+                <TextBox Text="{Binding Path}" TextWrapping="Wrap" Grid.Column="0" IsReadOnly="True"/>
+                <Button x:Name="btFiledialog" Content=" ... " Grid.Column="1" Click="btFiledialog_Click"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="Network Interface" Margin="10,0,0,0" Height="45" Grid.Column="0" Grid.Row="1" >
+            <Grid Margin="0,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="cbIPs" Grid.Column="0" SelectedValue="{Binding IP}"/>
                 <Button x:Name="btIPListRefresh" Grid.Column="1" Click="btIPListRefresh_Click">
                     <Canvas Name="Calque_1" Width="512" Height="512" Canvas.Left="0" Canvas.Top="0" RenderTransformOrigin="0,0">
                         <Canvas.Resources/>
@@ -56,19 +71,17 @@
                 </Button>
             </Grid>
         </GroupBox>
-        
-        <GroupBox Header="Software" Margin="10,10,10,10" Height="45" Grid.Column="1" >
-            <Grid Margin="0,0,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="30"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding softwarePath}" TextWrapping="Wrap" Grid.Column="0" IsReadOnly="True"/>
-                <Button x:Name="btFiledialog" Content=" ... " Grid.Column="1" Click="btFiledialog_Click"/>
-            </Grid>
-        </GroupBox>
 
-        <Button x:Name="btLaunch" Content="Launch" Margin="0,12,10,0" Height="23" Grid.Column="2" Click="btLaunch_Click"/>
+        <Button x:Name="btLaunch" Content="Launch" Margin="10,10,10,0" Height="23" Grid.Column="2"  Grid.Row="0" Click="btLaunch_Click"/>
+        
+        <DataGrid x:Name="dgProfileList" Grid.ColumnSpan="2" Grid.Row="2" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Ip" Binding="{Binding IP}"/>
+                <DataGridTextColumn Header="Software path" Width="*" Binding="{Binding Path}"/>
+                <DataGridTextColumn Header="Injection delay" Binding="{Binding InjectionDelay}"/>
+            </DataGrid.Columns>
+        </DataGrid>
 
     </Grid>
 </Window>

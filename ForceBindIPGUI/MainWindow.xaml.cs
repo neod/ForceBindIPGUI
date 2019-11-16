@@ -12,12 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Diagnostics;
-using System.IO;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Microsoft.Win32;
 
 namespace ForceBindIPGUI
@@ -25,82 +19,40 @@ namespace ForceBindIPGUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
-        private string _softwarePath;
-        public string softwarePath
-        {
-            get => _softwarePath;
-            set => SetField(ref _softwarePath, value);
-        }
-
-        private string _ip;
-        public string ip
-        {
-            get => _ip;
-            set => SetField(ref _ip, value);
-        }
-
+        private Models.Profiles currentProfile;
+        private List<Models.Profiles> ProfileList;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            this.DataContext = this;
+            currentProfile = new Models.Profiles();
+            this.DataContext = currentProfile;
 
             IPListRefresh();
-            //softwarePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+
+            ProfileList = new List<Models.Profiles>();
+            DummyProfileList();
+            dgProfileList.ItemsSource = ProfileList;
+
         }
 
-        public void launchSoftware()
+        private void DummyProfileList()
         {
-            PeHeaderReader phr = new PeHeaderReader(softwarePath);
-
-            ProcessStartInfo startInfo = new ProcessStartInfo((phr.Is32BitHeader)?"ForceBindIP.exe": "ForceBindIP64.exe");
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.ArgumentList.Add(ip);
-            startInfo.ArgumentList.Add(convertProgFilePath(softwarePath));
-
-            Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-        }
-
-        private string convertProgFilePath(string path)
-        {
-            if (path.Contains("Program Files (x86)")) return path.Replace("Program Files (x86)", "PROGRA~2");
-            if (path.Contains("Program Files")) return path.Replace("Program Files", "PROGRA~1");
-            return path;
-        }
-
-        public List<string> GetLocalIPv4()
-        {
-            List<string> IPList = new List<string>();
-            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (item.OperationalStatus == OperationalStatus.Up)
-                {
-                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            IPList.Add(ip.Address.ToString());
-                        }
-                    }
-                }
-            }
-            return IPList;
+            ProfileList.Add(new Models.Profiles(Guid.NewGuid(),"Proximus","192.168.1.100", @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", false));
         }
 
         private void IPListRefresh()
         {
-            cbIPs.ItemsSource = GetLocalIPv4();
+            cbIPs.ItemsSource = Models.NetworkInterfaces.GetLocalIPv4();
         }
 
         private void FileDialog()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true) softwarePath = openFileDialog.FileName;
+            if (openFileDialog.ShowDialog() == true) currentProfile.Path = openFileDialog.FileName;
         }
 
         #region Events
@@ -112,30 +64,13 @@ namespace ForceBindIPGUI
 
         private void btLaunch_Click(object sender, RoutedEventArgs e)
         {
-            launchSoftware();
+            Models.ForceBindIPConnector.Launch(currentProfile);
         }
 
         private void btFiledialog_Click(object sender, RoutedEventArgs e)
         {
             FileDialog();
         }
-
-        #endregion
-
-
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-
 
         #endregion
 
